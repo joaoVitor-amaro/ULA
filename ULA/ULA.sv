@@ -1,45 +1,45 @@
 module ULA (
-    input [5:0] A,           // Operando A de 6 bits
-    input [5:0] B,           // Operando B de 6 bits
-    input reset,             // Sinal de Reset
+    input [5:0] A,           
+    input [5:0] B,          
+    input reset,             
     input modo,              // Seleção de Modo (1 = Lógico)
-    input [2:0] op_sel,      // Seleção de Operação (3 bits)
-    output reg [5:0] O,      // Resultado de 6 bits da operação
-    output reg carry_out,    // Sinal de carry/overflow (não usado para operações lógicas)
-    output reg zero          // Sinal Zero (indica se o resultado é zero)
+    input [2:0] op_sel,      // Seleção de Operação
+    output reg [5:0] O,      // Resultado da operação
+    output reg carry_out,    // Sinal de carry
+    output reg zero          // Sinal zero
 );
 
     // Resultado das operações lógicas
-    reg [5:0] resultado_logico;  // Variável interna para armazenar resultado lógico
+    reg [5:0] resultado_logico; 
 
     always_comb begin
-        // Valores padrão para evitar inferência de latches
         resultado_logico = 6'b000000;
         O = 6'b000000;
         carry_out = 1'b0;
         zero = 1'b0;
 
         if (reset) begin
-            O = 6'b000000;      // Reseta as saídas
-            carry_out = 1'b0;   // Reseta carry_out
-            zero = 1'b1;        // Considera que o resultado é zero após reset
+            O = 6'b000000;   // Reseta a saida
+            carry_out = 1'b0;   // Reseta o carry
+            zero = 1'b1;        // O resultado vai ser 0 quando o reset acontecer
         end else begin
-            if (modo == 1) begin // Modo Lógico (quando modo = 1)
+            if (modo == 1) begin // Modo Lógico 
                 case (op_sel)
                     3'b000: resultado_logico = A & B;  // AND
                     3'b001: resultado_logico = A | B;  // OR
-                    3'b010: resultado_logico = A ^ B;  // OU-EXCLUSIVO (XOR)
-                    3'b011: resultado_logico = ~A;     // NOT
-                    default: resultado_logico = 6'b000000; // Valor padrão
+                    3'b010: resultado_logico = A ^ B;  // XOR
+                    3'b011: resultado_logico = ~A;     // NOT A
+						  3'b101: resultado_logico = ~B; // NOT B
+                    3'b100: resultado_logico = ~(A & B); // NAND
+						  default: resultado_logico = 6'b000000; 
                 endcase
                 O = resultado_logico;
-                carry_out = 1'b0; // Carry_out não é usado em operações lógicas
+                carry_out = 1'b0; 
             end else begin
-                O = 6'b000000;  // Se o modo não for lógico, retorna 0
-                carry_out = 1'b0; // Carry_out não é usado em operações lógicas
+                O = 6'b000000;
+                carry_out = 1'b0;
             end
-            // Verifica se o resultado é zero
-            zero = (O == 6'b000000);
+            zero = (O == 6'b000000); // Resultado zero
         end
     end
 
