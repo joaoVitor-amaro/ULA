@@ -1,0 +1,41 @@
+module ULA (
+    input logic [5:0] A,        // Operando A de 6 bits
+    input logic [5:0] B,        // Operando B de 6 bits
+    input logic reset,          // Sinal de Reset
+    input logic modo,           // Seleção de Modo (1 = Lógico)
+    input logic [2:0] op_sel,   // Seleção de Operação (3 bits)
+    output logic [5:0] O,       // Resultado de 6 bits da operação
+    output logic carry_out,     // Sinal de carry/overflow (não usado para operações lógicas)
+    output logic zero           // Sinal Zero (indica se o resultado é zero)
+);
+
+    // Resultado das operações lógicas
+    logic [5:0] resultado_logico;
+
+    // Definindo as operações lógicas
+    always_comb begin
+        if (reset) begin
+            O = 6'b000000;    // Reseta as saídas
+            carry_out = 0;    // Não há carry/overflow em operações lógicas
+            zero = 1;         // Considera que o resultado é zero após reset
+        end else begin
+            if (modo == 1) begin // Modo Lógico (quando modo = 1)
+                case (op_sel)
+                    3'b000: resultado_logico = A & B;  // AND
+                    3'b001: resultado_logico = A | B;  // OR
+                    3'b010: resultado_logico = A ^ B;  // OU-EXCLUSIVO (XOR)
+                    3'b011: resultado_logico = ~A;     // NOT
+                    default: resultado_logico = 6'b000000; // Valor padrão
+                endcase
+                O = resultado_logico;
+                carry_out = 0;  // Não há carry/overflow para operações lógicas
+            end else begin
+                O = 6'b000000;  // Se o modo não for lógico, retorna 0
+                carry_out = 0;
+            end
+            // Verifica se o resultado é zero
+            zero = (O == 6'b000000);
+        end
+    end
+
+endmodule

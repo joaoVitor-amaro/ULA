@@ -1,0 +1,62 @@
+module tb_ULA;
+
+    // Entradas do módulo ULA
+    reg [5:0] A;
+    reg [5:0] B;
+    reg reset;
+    reg modo;
+    reg [2:0] op_sel;
+
+    // Saídas do módulo ULA
+    wire [5:0] O;
+    wire carry_out;
+    wire zero;
+
+    // Instância do módulo ULA
+    ULA uut (
+        .A(A),
+        .B(B),
+        .reset(reset),
+        .modo(modo),
+        .op_sel(op_sel),
+        .O(O),
+        .carry_out(carry_out),
+        .zero(zero)
+    );
+
+    // Inicialização dos sinais de entrada
+    initial begin
+        // Iniciar os sinais
+        A = 6'b000000;
+        B = 6'b000000;
+        reset = 0;
+        modo = 1; // Modo lógico
+        op_sel = 3'b000; // Operação AND
+
+        // Teste 1: Reset
+        #10 reset = 1; // Ativa o reset
+        #10 reset = 0;
+
+        // Teste 2: Operação AND
+        #10 A = 6'b110011; B = 6'b101010; op_sel = 3'b000;
+
+        // Teste 3: Operação OR
+        #10 op_sel = 3'b001;
+
+        // Teste 4: Operação XOR
+        #10 op_sel = 3'b010;
+
+        // Teste 5: Operação NOT
+        #10 op_sel = 3'b011; A = 6'b111111;
+
+        // Teste 6: Modo desligado
+        #10 modo = 0; // Modo desativado (não faz operação lógica)
+        #10 $finish; // Termina a simulação
+    end
+
+    // Monitorar a saída
+    initial begin
+        $monitor("Time = %t | A = %b, B = %b, op_sel = %b, O = %b, carry_out = %b, zero = %b", $time, A, B, op_sel, O, carry_out, zero);
+    end
+
+endmodule
